@@ -1,0 +1,11 @@
+# ค่าลับของเครื่องนี้ ห้าม commit
+.env
+.env.*
+!.env.example
+
+# ของที่ install.js สร้างเมื่อเลือก scope = project
+.claude/
+.agents/
+
+.DS_Store
+node_modules/
