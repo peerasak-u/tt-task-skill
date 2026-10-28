@@ -11,7 +11,7 @@
 
 	const SKILL = "tt-task-skill";
 	const FILES = ["SKILL.md", "references/api.md", "scripts/tt.mjs", "install.js"];
-	const USAGE = `usage: node install.js [--scope user|project] [--url <address>] [--dropbox-dir <folder>] [--no-dropbox]
+	const USAGE = `usage: node install.js [--scope user|project] [--url <address>]
 
 Asks for whatever is not given. The token is asked for, or read from TT_API_TOKEN when that is set.`;
 
@@ -148,16 +148,6 @@ Asks for whatever is not given. The token is asked for, or read from TT_API_TOKE
 		await checkToken(apiUrl, apiToken);
 		console.log("The token works.");
 
-		let dropboxDir = null;
-		if (!args.includes("--no-dropbox")) {
-			const guess = stored.dropboxDir || [path.join(os.homedir(), "Dropbox")].find((dir) => fs.existsSync(dir)) || "";
-			const answer = flag("--dropbox-dir") ?? (await ask("Dropbox folder on this machine, or - for none", { fallback: guess || "-" }));
-			if (answer !== "-") {
-				dropboxDir = path.resolve(answer);
-				if (!fs.existsSync(dropboxDir)) throw new Refusal(`there is no folder at ${dropboxDir}`);
-			}
-		}
-
 		const files = await readSkillFiles();
 		const installed = [".claude", ".agents"].map((agentDir) => {
 			const dir = path.join(base, agentDir, "skills", SKILL);
@@ -171,12 +161,11 @@ Asks for whatever is not given. The token is asked for, or read from TT_API_TOKE
 
 		// The token stays out of the project folder at either scope, so it cannot be committed.
 		fs.mkdirSync(configDir, { recursive: true, mode: 0o700 });
-		fs.writeFileSync(configFile, `${JSON.stringify({ apiUrl, apiToken, dropboxDir }, null, "\t")}\n`, { mode: 0o600 });
+		fs.writeFileSync(configFile, `${JSON.stringify({ apiUrl, apiToken }, null, "\t")}\n`, { mode: 0o600 });
 		fs.chmodSync(configFile, 0o600);
 
 		console.log(`\nSkill installed in:\n${installed.map((dir) => `  ${dir}`).join("\n")}`);
 		console.log(`Address and token stored in:\n  ${configFile}`);
-		console.log(`Dropbox folder: ${dropboxDir ?? "not set, so the agent cannot read WP folders on this machine"}`);
 		console.log(`\nStart a new agent session and ask it to fill a job's closing facts.`);
 	}
 

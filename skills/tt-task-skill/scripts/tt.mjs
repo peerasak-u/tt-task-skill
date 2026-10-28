@@ -2,7 +2,7 @@
 // TimeThunder API client for agents. No dependencies; runs on Node 18+ or Bun.
 
 import { randomUUID } from "node:crypto";
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -13,8 +13,8 @@ const USAGE = `usage:
   tt.mjs closing-plan <jobId>                what is empty, and where the WP folder is
   tt.mjs fill-closing <jobId> <json | @file> [--dry-run]
 
-The address, the token and the Dropbox folder come from the file install.js writes.
-TT_API_URL, TT_API_TOKEN and TT_DROPBOX_DIR override it when set.`;
+The address and the token come from the file install.js writes.
+TT_API_URL and TT_API_TOKEN override it when set.`;
 
 class Refusal extends Error {}
 
@@ -130,13 +130,6 @@ function toApiValue(field, value) {
 const baht = (satang) => (satang / 100).toLocaleString("en-US", { minimumFractionDigits: 2 });
 const shown = (field, apiValue) => (field.endsWith("Baht") ? `${baht(apiValue)} บาท` : String(apiValue));
 
-function localWpFolder(wpFolderPath) {
-	const root = setting("TT_DROPBOX_DIR", "dropboxDir");
-	if (!root || !wpFolderPath) return null;
-	const path = join(root, wpFolderPath);
-	return existsSync(path) ? { path, files: readdirSync(path).sort() } : { path, files: null };
-}
-
 function closingState(job) {
 	const empty = Object.keys(FIELDS).filter((field) => job.closing[FIELDS[field].api] === null);
 	const blocked = job.cancelledAt ? "the job is cancelled" : job.deliveredAt ? "the job is already delivered" : null;
@@ -170,7 +163,6 @@ async function closingPlan(id) {
 		closing: job.closing,
 		emptyFields: empty,
 		wpFolderPath: job.files.wpFolderPath,
-		localWpFolder: localWpFolder(job.files.wpFolderPath),
 		indexedFiles: job.files.items.map((item) => ({ label: item.label, isReport: item.isReport, files: item.matches.map((m) => m.name) })),
 		fileIndexSyncedAt: job.files.syncedAt,
 	};

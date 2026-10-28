@@ -1,6 +1,6 @@
 # tt-task-skill
 
-An agent skill for TimeThunder Audit Manager. It lets an agent read TimeThunder through its API and fill a job's closing facts from the job's WP folder, for staff to review.
+An agent skill for TimeThunder Audit Manager. It lets an agent read TimeThunder through its API and fill a job's closing facts that it is given, for staff to review.
 
 ## Install
 
@@ -16,17 +16,16 @@ From a checkout of this repository:
 node skills/tt-task-skill/install.js
 ```
 
-The installer asks four things:
+The installer asks three things:
 
 1. **Scope.** `user` puts the skill in `~/.claude/skills` and `~/.agents/skills`. `project` puts it in `.claude/skills` and `.agents/skills` of the folder you run it from.
 2. **TimeThunder address.**
 3. **API token.** A staff member issues one on the TimeThunder settings page. Typing is hidden. The installer checks the token before it stores anything.
-4. **Dropbox folder on this machine.** The agent reads WP folders from here. Answer `-` when this machine has none.
 
 To skip the questions, pass flags and set `TT_API_TOKEN`. With the one-line form, put `--` before the flags.
 
 ```sh
-node skills/tt-task-skill/install.js --scope user --url https://example.com --dropbox-dir ~/Dropbox
+node skills/tt-task-skill/install.js --scope user --url https://example.com
 ```
 
 Run it again to update the skill or to replace the token.
@@ -36,11 +35,11 @@ Run it again to update the skill or to replace the token.
 | What | Where |
 |---|---|
 | The skill | `.claude/skills/tt-task-skill` and `.agents/skills/tt-task-skill`, under your home folder or the project |
-| Address, token, Dropbox folder | `%APPDATA%\tt-task-skill\config.json` on Windows, `~/.config/tt-task-skill/config.json` elsewhere |
+| Address and token | `%APPDATA%\tt-task-skill\config.json` on Windows, `~/.config/tt-task-skill/config.json` elsewhere |
 
 The token is stored as plain text in a file only your user can read. It is never placed in a project folder. To remove it, delete that file and ask staff to revoke the token.
 
-`TT_API_URL`, `TT_API_TOKEN` and `TT_DROPBOX_DIR` override the stored values when set.
+`TT_API_URL` and `TT_API_TOKEN` override the stored values when set.
 
 ## How the installer reaches other machines
 
